@@ -1,55 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/jpeg" href="../favicon.jpg"/>
+    <link rel="shortcut icon" type="image/jpeg" href="/project-school-stash/favicon.jpg">
     <title>Super Mario World - Project School Stash</title>
-    <audio id="myAudio" autoplay loop>
-        <source src="music.opus" type="audio/opus">
-        Your browser does not support the audio element.
-      </audio>
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          var audio = document.getElementById('myAudio');
-          audio.muted = true; // Mute the audio to bypass autoplay restriction
-          audio.play().then(function() {
-            audio.muted = false; // Unmute after playing
-          }).catch(function(error) {
-            console.log('Playback failed:', error);
-          });
-        });
-      </script>
-    <style>
-        .dropdown-content {
-            display: none; /* Initially hide the dropdown content */
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 1;
-        }
-    </style>
-    <script>
-        function toggleDropdown(dropdownClass) {
-            var dropdownContent = document.querySelector(dropdownClass);
-            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-        }
-    </script>
 </head>
 <body>
-    <header>
-        <div style="text-align: center;">
-            <p><a href="https://www.youtube.com/watch?v=LTSSxG25nTg">Song Playing: World 1: Yoshi's Island</a></p>
-            <h1>Super Mario World</h1>
-	    <button onclick="window.location.href='game.html';">Play Now!</button><br>
-        </div>
+    <audio id="myAudio" loop>
+        <source src="music.opus" type="audio/ogg; codecs=opus">
+        <source src="music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <header style="text-align: center;">
+        <p><a href="https://www.youtube.com/watch?v=LTSSxG25nTg" target="_blank" rel="noopener">Song Playing: World 1: Yoshi's Island</a></p>
+        <h1>Super Mario World</h1>
+        <button onclick="window.location.href='game.html';">Play Now!</button>
     </header>
-    <footer>
-        <div style="text-align: center;">
-            <p>_____________</p>
-            <button onclick="window.location.href='/project-school-stash/';">Return to Home</button>
-        </div>
+
+    <footer style="text-align: center; margin-top: 2rem;">
+        <hr style="width: 150px;">
+        <button onclick="window.location.href='/project-school-stash/';">Return to Home</button>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audio = document.getElementById('myAudio');
+
+            // Attempt autoplay; if blocked by browser, start on first user click/keypress
+            audio.play().catch(function() {
+                const startAudio = function() {
+                    audio.play();
+                    document.removeEventListener('click', startAudio);
+                    document.removeEventListener('keydown', startAudio);
+                };
+                document.addEventListener('click', startAudio);
+                document.addEventListener('keydown', startAudio);
+            });
+        });
+    </script>
 </body>
 </html>
