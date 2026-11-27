@@ -1,107 +1,132 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <style>
-            body, html {
-                margin: 0;
-                padding: 0;
-                height: 100%;
-                background-color: black;
-                color: white;
-                font-family: sans-serif;
-            }
-            #upload-prompt {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100%;
-                gap: 15px;
-                text-align: center;
-            }
-            input[type="file"] {
-                background: #222;
-                padding: 10px;
-                border-radius: 6px;
-                border: 1px solid #444;
-                color: white;
-                cursor: pointer;
-            }
-            .error-msg {
-                color: #ff5555;
-                font-weight: bold;
-            }
-        </style>
-        <link rel="shortcut icon" type="image/jpeg" href="favicon.jpg"/>
-        <title>GAME</title>
-        <script>
-            window.onbeforeunload = function() {
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: black;
+            color: white;
+            font-family: sans-serif;
+        }
+        #game-wrapper {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+        }
+        #upload-prompt {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 15px;
+            text-align: center;
+            padding: 20px;
+        }
+        input[type="file"] {
+            background: #222;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            color: white;
+            cursor: pointer;
+        }
+        .error-msg {
+            color: #ff5555;
+            font-weight: bold;
+        }
+    </style>
+    <link rel="shortcut icon" type="image/jpeg" href="favicon.jpg"/>
+    <title>GAME</title>
+</head>
+<body>
+    <div id="game-wrapper">
+        <div id="game"></div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const fileName = params.get("file-name");
+        const gameDiv = document.getElementById("game");
+
+        // Allow .sfc, .smc, and .zip (standard SNES formats)
+        const VALID_EXTS = [".sfc", ".smc", ".zip"];
+
+        function isValidRom(name) {
+            if (!name) return false;
+            const cleanName = name.split("?")[0].split("#")[0].toLowerCase();
+            return VALID_EXTS.some(ext => cleanName.endsWith(ext));
+        }
+
+        function enableReloadGuard() {
+            window.addEventListener("beforeunload", function (e) {
+                e.preventDefault();
+                e.returnValue = "Are you sure you want to reload?";
                 return "Are you sure you want to reload?";
-            };
-        </script>
-    </head>
-    <body>
-        <div style="width:100%;height:100%;max-width:100%">
-            <div id="game"></div>
-        </div>
+            });
+        }
 
-        <script>
-            const params = new URLSearchParams(window.location.search);
-            const fileName = params.get("file-name");
-            const gameDiv = document.getElementById("game");
+        function startEmulator(romUrl, originalFileName) {
+            // Reset #game cleanly so EmulatorJS has a fresh mount target
+            const wrapper = document.getElementById("game-wrapper");
+            wrapper.innerHTML = '<div id="game"></div>';
 
-            // Strict check ensuring the filename ends with .sfc (case-insensitive)
-            function isValidSfc(name) {
-                if (!name) return false;
-                const cleanName = name.split("?")[0].split("#")[0];
-                return cleanName.toLowerCase().endsWith(".sfc");
-            }
+            // Set globals on window BEFORE loading loader.js
+            window.EJS_player = "#game";
+            window.EJS_core = "snes";
+            window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
+            window.EJS_gameUrl = romUrl;
+            // Critical for blob: URLs so EmulatorJS knows the file extension
+            window.EJS_gameName = originalFileName || romUrl;
+            window.EJS_startOnLoaded = true;
 
-            function startEmulator(romUrl) {
-                window.EJS_player = "#game";
-                window.EJS_core = "snes";
-                window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-                window.EJS_gameUrl = romUrl;
+            enableReloadGuard();
 
-                const script = document.createElement("script");
-                script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
-                document.body.appendChild(script);
-            }
+            const script = document.createElement("script");
+            script.src = "https://cdn.emulatorjs.org/stable/data/loader.js";
+            script.async = false;
+            document.body.appendChild(script);
+        }
 
-            function showUploadPrompt(errorMessage = "") {
-                gameDiv.innerHTML = `
-                    <div id="upload-prompt">
-                        <h2>Load SNES Game (.sfc)</h2>
-                        ${errorMessage ? `<p class="error-msg">${errorMessage}</p>` : ""}
-                        <p>Select a valid <strong>.sfc</strong> ROM file from your device:</p>
-                        <input type="file" id="rom-picker" accept=".sfc" />
-                    </div>
-                `;
+        function showUploadPrompt(errorMessage = "") {
+            gameDiv.innerHTML = `
+                <div id="upload-prompt">
+                    <h2>Load SNES Game (.sfc / .smc)</h2>
+                    ${errorMessage ? `<p class="error-msg">${errorMessage}</p>` : ""}
+                    <p>Select a valid SNES ROM file from your device:</p>
+                    <input type="file" id="rom-picker" accept=".sfc,.smc,.zip" />
+                </div>
+            `;
 
-                document.getElementById("rom-picker").addEventListener("change", function(event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
+            document.getElementById("rom-picker").addEventListener("change", function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
 
-                    if (isValidSfc(file.name)) {
-                        const localBlobUrl = URL.createObjectURL(file);
-                        gameDiv.innerHTML = "";
-                        startEmulator(localBlobUrl);
-                    } else {
-                        showUploadPrompt("Invalid file type. Please select a .sfc file.");
-                    }
-                });
-            }
-
-            // Main entry check
-            if (fileName) {
-                if (isValidSfc(fileName)) {
-                    startEmulator(fileName);
+                if (isValidRom(file.name)) {
+                    const localBlobUrl = URL.createObjectURL(file);
+                    startEmulator(localBlobUrl, file.name);
                 } else {
-                    showUploadPrompt("Invalid URL parameter: File must be a .sfc ROM.");
+                    showUploadPrompt("Invalid file type. Please select a .sfc, .smc, or .zip file.");
                 }
+            });
+        }
+
+        // Main entry check
+        if (fileName) {
+            if (isValidRom(fileName)) {
+                startEmulator(fileName, fileName);
             } else {
-                showUploadPrompt();
+                showUploadPrompt("Invalid URL parameter: File must be a .sfc, .smc, or .zip ROM.");
             }
-        </script>
-    </body>
+        } else {
+            showUploadPrompt();
+        }
+    </script>
+</body>
 </html>
