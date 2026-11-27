@@ -3,123 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/jpeg" href="/project-school-stash/favicon.jpg">
-    <title>Super Mario World - Project School Stash</title>
-    <style>
-        .audio-controls {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            padding: 6px 12px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-        .audio-controls button {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 0;
-        }
-        .audio-controls input[type="range"] {
-            width: 100px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <audio id="myAudio" loop>
-        <source src="music.opus" type="audio/ogg; codecs=opus">
-        <source src="music.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
-
-    <header style="text-align: center;">
-        <p><a href="https://www.youtube.com/watch?v=LTSSxG25nTg" target="_blank" rel="noopener">Song Playing: World 1: Yoshi's Island</a></p>
-        <h1>Super Mario World</h1>
-        <button onclick="window.location.href='game.html';">Play Now!</button>
-        <br>
-
-        <div class="audio-controls">
-            <button id="muteBtn" aria-label="Toggle Mute">🔊</button>
-            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5" aria-label="Music Volume">
-        </div>
-    </header>
-
-    <footer style="text-align: center; margin-top: 2rem;">
-        <hr style="width: 150px;">
-        <button onclick="window.location.href='/project-school-stash/';">Return to Home</button>
-    </footer>
-
+    <link rel="shortcut icon" type="image/jpeg" href="../../project-school-stash/favicon.jpg">
+    <link rel="stylesheet" href="../../project-school-stash/theme.css">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const audio = document.getElementById('myAudio');
-            const volumeSlider = document.getElementById('volumeSlider');
-            const muteBtn = document.getElementById('muteBtn');
-
-            const VOLUME_KEY = 'pss_music_volume';
-            const MUTED_KEY = 'pss_music_muted';
-
-            // 1. Load saved settings from localStorage (defaults to 50% volume, unmuted)
-            const savedVolume = localStorage.getItem(VOLUME_KEY);
-            const savedMuted = localStorage.getItem(MUTED_KEY) === 'true';
-
-            const initialVolume = savedVolume !== null ? parseFloat(savedVolume) : 0.5;
-            audio.volume = initialVolume;
-            audio.muted = savedMuted;
-            volumeSlider.value = savedMuted ? 0 : initialVolume;
-
-            function updateIcon() {
-                if (audio.muted || audio.volume === 0) {
-                    muteBtn.textContent = '🔇';
-                } else if (audio.volume < 0.5) {
-                    muteBtn.textContent = '🔉';
-                } else {
-                    muteBtn.textContent = '🔊';
-                }
-            }
-            updateIcon();
-
-            // 2. Save volume whenever the slider moves
-            volumeSlider.addEventListener('input', function() {
-                const newVol = parseFloat(this.value);
-                audio.volume = newVol;
-                audio.muted = (newVol === 0);
-
-                localStorage.setItem(VOLUME_KEY, newVol);
-                localStorage.setItem(MUTED_KEY, audio.muted);
-                updateIcon();
-            });
-
-            // 3. Toggle mute on icon click
-            muteBtn.addEventListener('click', function() {
-                audio.muted = !audio.muted;
-                localStorage.setItem(MUTED_KEY, audio.muted);
-
-                if (audio.muted) {
-                    volumeSlider.value = 0;
-                } else {
-                    // Restore previous volume (or 0.5 if it was dragged to 0)
-                    const restoreVol = audio.volume > 0 ? audio.volume : 0.5;
-                    audio.volume = restoreVol;
-                    volumeSlider.value = restoreVol;
-                    localStorage.setItem(VOLUME_KEY, restoreVol);
-                }
-                updateIcon();
-            });
-
-            // 4. Autoplay with fallback for browser restrictions
-            audio.play().catch(function() {
-                const startAudio = function() {
-                    audio.play();
-                    document.removeEventListener('click', startAudio);
-                    document.removeEventListener('keydown', startAudio);
-                };
-                document.addEventListener('click', startAudio);
-                document.addEventListener('keydown', startAudio);
-            });
-        });
+        window.GAME_CONFIG = {
+            "infoFile": ".info", // Reads "title = ..." and "genre = ..." automatically
+            "game.photo": "favicon.png",
+            "photo.background": "#2967d8",
+            "description": "Your super classic Mario adventure, here to take over the classtime in your favor",
+            "song.title": "World 1: Yoshi's Island",
+            "song.link": "https://www.youtube.com/watch?v=LTSSxG25nTg"
+        };
     </script>
-</body>
+    <script src="../../project-school-stash/theme.js" defer></script>
+</head>
+<body></body>
 </html>
