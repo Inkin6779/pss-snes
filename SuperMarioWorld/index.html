@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/jpeg" href="../favicon.jpg"/>
+    <title>Pokemon Red - Project School Stash</title>
+    <audio id="myAudio" autoplay loop>
+        <source src="music.opus" type="audio/opus">
+        Your browser does not support the audio element.
+      </audio>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var audio = document.getElementById('myAudio');
+          audio.muted = true; // Mute the audio to bypass autoplay restriction
+          audio.play().then(function() {
+            audio.muted = false; // Unmute after playing
+          }).catch(function(error) {
+            console.log('Playback failed:', error);
+          });
+        });
+      </script>
+    <style>
+        .dropdown-content {
+            display: none; /* Initially hide the dropdown content */
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+    </style>
+    <script>
+        function toggleDropdown(dropdownClass) {
+            var dropdownContent = document.querySelector(dropdownClass);
+            dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div style="text-align: center;">
+            <p><a href="https://www.youtube.com/watch?v=LTSSxG25nTg">Song Playing: World 1: Yoshi's Island</a></p>
+            <h1>Super Mario World</h1>
+	    <button onclick="window.location.href='/pokemonred';">Play Now!</button><br>
+        </div>
+    </header>
+    <footer>
+        <div style="text-align: center;">
+            <p>_____________</p>
+            <button onclick="window.location.href='/project-school-stash/';">Return to Home</button>
+        </div>
+    </footer>
+</body>
+</html>
